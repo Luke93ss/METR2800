@@ -1,3 +1,7 @@
+#include <Stepper.h>
+#include <SoftwareSerial.h>
+SoftwareSerial DebugSerial(2, 3); // RX, TX
+
 // Macros to define all possible states. 
 #define WAIT_STATE 0 
 #define EXTEND_ARM 1 
@@ -7,8 +11,16 @@
 #define RAISE_BODY 5
 #define CABLE_TRANSLATE 6
 #define ORIENTATE_BODY 7
-#define LOWER_BODY 8
-#define COMPLETE 9
+#define LOWER_BODY 14
+#define COMPLETE 15
+#define directionpin1 12 // Direction of stepper1
+#define step1 13 // Pwm input for stepper3 
+#define directionpin2 10 // Direction of stepper1
+#define step2 11 // Pwm input for stepper2
+#define directionpin3 8 // Direction of stepper1
+#define step3 9 // Pwm input for stepper3
+
+const int STEPS_PER_REV = 200;
 
 // Global variables used as control inputs 
 // for state transitions, and to track current state.
