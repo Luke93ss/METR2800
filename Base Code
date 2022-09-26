@@ -37,6 +37,12 @@ double startBearing;
 
 void setup() {
   // The setup initialise IO pins, position of actuators, and interrupts for buttonState, hasFoundZoneC, isRaised. 
+  DebugSerial.begin(9600);
+
+  DebugSerial.println("Waiting for connections...");
+
+ 
+  Serial.begin(9600);W 
 }
 
 void loop() {
@@ -183,7 +189,7 @@ void lowerBody() {
 }
 
 void cableTranslate() {
-  // uses controlStepper(), readToF()
+  // uses controlStepper(), readToF(), setdirection()
 }
 
 void orientate() {
@@ -204,10 +210,35 @@ void turnClawServo(int dir, int deg) {
 
 void controlOmniWheels(int dir1, int deg1, int dir2, int deg2) {
   // Interfaces with the motor driver for the omni-wheels
+  
+}
+void setdirection(int dir, int dirpin){
+
+  if (dir == 0){
+    digitalWrite(dirpin, LOW);
+  }
+  if (dir == 1){
+    digitalWrite(dirpin, HIGH);
+  }
 }
 
-void controlStepper(int motornum, int dir, int rotations) {
-  // Interfaces with the motor driver specified by motornum
+void controlStepper(int motornum, int rotations) {
+  // Interfaces with the motor driver specified by motornum and # of rotations
+    for (int x = 0; x < STEPS_PER_REV*rotations; x++){
+      digitalWrite(motornum,HIGH);
+      delayMicroseconds(700); // Minimum delay is approx 350 uS
+      digitalWrite(motornum,LOW);
+      delayMicroseconds(700); // Minimum delay is approx 350 uS
+    }
+}
+void controlStepper2(int motornum, int rotations) {
+  // Interfaces with the motor driver specified by motornum and # of rotations
+    while (readToF() > 200){
+      digitalWrite(motornum,HIGH);
+      delayMicroseconds(700); // Minimum delay is approx 350 uS
+      digitalWrite(motornum,LOW);
+      delayMicroseconds(700); // Minimum delay is approx 350 uS
+    }
 }
 
 double readToF(int ToFnum) {
@@ -218,14 +249,3 @@ double readMag() {
   // returns bearing from magnetometer
 }
 
-
-// Use this runMotor function for a specified distance.
-void runMotor(int rotations){
-    
-    for (int x = 0; x < STEPS_PER_REV*rotations; x++){
-      digitalWrite(step3,HIGH);
-      delayMicroseconds(700); // Minimum delay is approx 350 uS
-      digitalWrite(step3,LOW);
-      delayMicroseconds(700); // Minimum delay is approx 350 uS
-    }
-}
