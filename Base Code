@@ -1,0 +1,207 @@
+// Macros to define all possible states. 
+#define WAIT_STATE 0 
+#define EXTEND_ARM 1 
+#define PICK_UP 2
+#define PUT_DOWN 3
+#define RETRACT_ARM 4
+#define RAISE_BODY 5
+#define CABLE_TRANSLATE 6
+#define ORIENTATE_BODY 7
+#define LOWER_BODY 8
+#define COMPLETE 9
+
+// Global variables used as control inputs 
+// for state transitions, and to track current state.
+
+// Interrupts need to be coded to detect changes and adjust the buttonState, hasFoundZoneC, and isRaised variables
+int currentState = 0;
+boolean buttonState = false; 
+boolean hasPackage = false;
+boolean hasFoundZoneC = false;
+boolean isRaised = false;
+boolean hasTranslated = false;
+
+double startBearing; 
+
+void setup() {
+  // The setup initialise IO pins, position of actuators, and interrupts for buttonState, hasFoundZoneC, isRaised. 
+}
+
+void loop() {
+  // This loop calls the relevant functions to 
+  // execute for the current state. 
+  // It then updates the control variables
+  // and the current state. Eg: 
+
+  switch (currentState) {
+    
+    case WAIT_STATE :
+      while (buttonState) {
+      }
+      currentState = EXTEND_ARM;
+      break;
+  
+    case EXTEND_ARM :
+      extendArm();
+      
+      checkHasPackage();
+      if (!hasPackage) {
+        currenState = PICK_UP;
+      } else {
+        if (hasFoundZoneC) {
+          currentState = PUT_DOWN;
+        } else {
+          currentState = ORIENTATE;
+        }
+      }
+      break;
+
+    case PICK_UP : 
+      closeClaw();
+      raiseClaw();
+
+      currentState = RETRACT_ARM;
+      break;
+
+    case PUT_DOWN : 
+      lowerClaw();
+      openClaw();
+
+      currentState = RETRACT_ARM;
+      break;
+
+    case RETRACT_ARM :
+      retractArm();
+
+      checkHasPackage();
+      if (hasTranslated && hasPackage) {
+        currentState = ORIENTATE_BODY;
+      } else if ((hasTranslated && !hasPackage) || (!hasTranslated && hasPackage)) {
+        currentState = RAISE_BODY;
+      }
+      break;
+
+    case RAISE_BODY :
+      raiseBody();
+
+      currentState = CABLE_TRANSLATE;
+      break;
+
+    case CABLE_TRANSLATE :
+      cableTranslate();
+
+      if (hasTranslated) {
+        hasTranslated = false; 
+      } else {
+        hasTranslated = true;
+      }
+
+      checkHasPackage();
+      if (hasPackage) {
+        currentState = ORIENTATE_BODY;
+      } else {
+        currentState = COMPLETE;
+      }
+      break;
+
+    case ORIENTATE_BODY :
+      orientate();
+
+      if (isRaised) {
+        currentState = LOWER_BODY;
+      } else {
+        currentState = EXTEND_ARM;
+      }
+      break;
+
+    case LOWER_BODY :
+      lowerBody(); 
+
+      currentState = EXTEND_ARM;
+      break;
+
+    case COMPLETE :
+      while(true) {
+      }
+  }
+}
+
+
+
+// Function to check control variables. 
+
+void checkHasPackage() {
+  // returns true if the ToF pointed at the sensor can see the package, and false if not
+}
+
+
+
+// High level functions. 
+
+void openClaw() {
+  // uses ,
+}
+
+void closeClaw() { 
+  // uses 
+}
+
+void raiseClaw() { 
+  // uses turnRackPinionServo()
+}
+
+void lowerClaw() { 
+  // uses turnRackPinionServo()
+}
+
+void extendArm() {
+  // uses controlOmniWheels(), readToF()
+}
+
+void retractArm() { 
+  // uses controlOmniWheels()
+}
+
+void raiseBody() {
+  // uses controlStepper()
+}
+
+void lowerBody() {
+  // uses controlStepper()
+}
+
+void cableTranslate() {
+  // uses controlStepper(), readToF()
+}
+
+void orientate() {
+  // uses controlStepper(), readMag()
+}
+
+
+
+// Low level functions. 
+
+void turnRackPinionServo(int dir, int deg) {
+  // Turns the MG995 servo
+}
+
+void turnClawServo(int dir, int deg) {
+  // Turns the SG90 servo
+}
+
+void controlOmniWheels(int dir1, int deg1, int dir2, int deg2) {
+  // Interfaces with the motor driver for the omni-wheels
+}
+
+void controlStepper(int motornum, int dir, int deg) {
+  // Interfaces with the motor driver specified by motornum
+}
+
+double readToF(int ToFnum) {
+  // returns distance measurement from ToF
+}
+
+double readMag() {
+  // returns bearing from magnetometer
+}
